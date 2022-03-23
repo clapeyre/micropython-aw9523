@@ -25,9 +25,9 @@ class AW9523:
     No GPIO functionality.
     """
 
-    _pin_to_addr = dict([(pin, 0x24 + pin) for pin in range(7)] +
-                        [(pin, 0x20 + pin - 8) for pin in range(8, 12)] +
-                        [(pin, 0x2C + pin - 12) for pin in range(12, 16)])
+    _pin_to_addr = ([0x24 + pin for pin in range(7)] +
+                    [0x20 + pin - 8 for pin in range(8, 12)] +
+                    [0x2C + pin - 12 for pin in range(12, 16)])
 
     def __init__(self, i2c_bus, address=_AW9523_DEFAULT_ADDR):
         self.i2c_bus = i2c_bus
@@ -48,9 +48,9 @@ class AW9523:
         self._write(_AW9523_REG_LEDMODE, 0x00, 0x00)
     
     def __setitem__(self, idx, val):
-        idx = [idx] if type(idx) == int else list(range(16))[idx]
-        addrs = [self._pin_to_addr[i] for i in idx]
-        if type(val) == int: val = [val] * len(idx)
+        addrs = self._pin_to_addr[idx]
+        if type(addrs) == int: addrs = [addrs]
+        if type(val) == int: val = [val] * len(addrs)
         if not all([0 <= v <= 255 for v in val]):
             raise ValueError("Value must be 0 to 255")
         for a, v in zip(addrs, val):
